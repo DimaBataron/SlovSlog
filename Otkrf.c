@@ -16,9 +16,9 @@ void main()
 	char slow[40],slowsl[40]; // слово получаемое из файла slowsl слово разделенное по слогам которое нужно вывести в файл
 	int slows[40];				// схема букв в словах
 	int x1, x2, x3, x4, x5, x6, x7,x8, kbukv,k,f=0, Sglasn=0,fl=0;    // kbukv сколько букв в слове осталось
-	fp=fopen("D:\\A.txt","rt");  // файл с исходными словами
-	fp1=fopen("D:\\B.txt","w+t"); // схема слова;
-	fp2=fopen("D:\\C.txt","w+t"); // слово по слогам
+	fp=fopen("E:\\A.txt","rt");  // файл с исходными словами
+	fp1=fopen("E:\\B.txt","wt"); // схема слова;
+	fp2=fopen("E:\\C.txt","wt"); // слово по слогам
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
 	//проверить везде ли правильно уменьшаеться колияество гласных. Если больше нет запись и braik 
@@ -76,6 +76,8 @@ void main()
 				i++;
 			}
 			fprintf(fp1, "\n", slows[z]);
+			slow[i]='\n';
+			slow[i+1]='\0';
 			i=0;
 	kbukv=z+1;  // количество букв в слове -- далее количество оставшихся букв
 	nslow=1;
@@ -96,8 +98,8 @@ void main()
 			x6=slows[z+5];
 			x7=slows[z+6];
 			x8=slows[z+7];
-			if((x1==3 && x2==1 && x3==2 && x4==3 && x5==2) ||
-				((x1==3 && x2==2 && x3==1 && x4==2 && x5==3) ||
+			if(((x1==3 && x2==1 && x3==2 && x4==3 && x5==2) ||
+				(x1==3 && x2==2 && x3==1 && x4==2 && x5==3) ||
 				 (x1==3 && x2==1 && x3==2 && x4==3 && x5==3)) && x6!=1)//31232 32123 31233 санкт
 			{
 				for(i=0;i<5;i++,z++,n++,kbukv--) slowsl[n]=slow[z];
@@ -107,7 +109,7 @@ void main()
 				glasn--;
 				pk=1;
 			}
-			if(nslow && (x1==3 && x2==3 && x3==2 && x4==1) && (x5==2 || x5==3)) //33213 33212
+			if(nslow && (x1==3 && x2==3 && x3==2 && x4==1) && (x5==2 || x5==3) && x6!=1) //33213 33212
 			{
 				for(i=0;i<5;i++,z++,n++,kbukv--) slowsl[n]=slow[z];
 				slowsl[n++]='-';
@@ -119,14 +121,22 @@ void main()
 			if(nslow && x1==3 && x2==3 && x3==1 && x4==3 && x5!=1) // 3313 пред чрез
 			{
 				for(i=0;i<4;i++,z++,n++,kbukv--) slowsl[n]=slow[z];
+				i=z;  // ищем скопление согласных перед мягким знаком
+				while(slows[i]>0 && slows[i]!=4 && (slows[i]==2 || slows[i]==3)) i++;
+				if(slows[i]==4)
+				{
+					k=i-z+1;
+					for(i=0;i<k;i++,z++,n++,kbukv--) slowsl[n]=slow[z];
+				}
 				slowsl[n++]='-';
 				fl=1;
 				nslow=0;
 				glasn--;
 				pk=1;
 			}
-			if(nslow && x1==2 && x2==1 && x3==2 && x4==3) //2123 йорк
+			if(nslow && slow[z]=='й' && slow[z+1]=='о' && slow[z+2]=='р' && slow[z+3]=='к')
 			{
+				{
 				for(i=0;i<4;i++,z++,n++,kbukv--) slowsl[n]=slow[z];
 				slowsl[n++]='-';
 				fl=1;
@@ -142,23 +152,39 @@ void main()
 					pk=1;
 				}
 			}
-			if(nslow && (((x1==2 || x1==3) && x2==1 && x3==3) || 
-				(x1==1 && x2==2 & x3==3)&& x4!=1)) //213 313 123
+			}
+			if(nslow && x1==2 && x2==1 && x3==2 && x4==3 && x5!=1) //2123 и не 1
 			{
-				for(i=0;i<3;i++,z++,n++,kbukv--) slowsl[n]=slow[z];
+				for(i=0;i<4;i++,z++,n++,kbukv--) slowsl[n]=slow[z];
 				slowsl[n++]='-';
 				fl=1;
 				nslow=0;
 				glasn--;
 				pk=1;
 			}
-			if(nslow && x1==3 && x2==3 && x3==1 && x4==2 && x5==3) //33123
+			if(nslow && (((x1==2 || x1==3) && x2==1 && x3==3) || 
+				(x1==1 && x2==2 & x3==3)) &&  x4!=1) //213 313 123
+			{
+				if(x4==4) for(i=0;i<4;i++,z++,n++,kbukv--) slowsl[n]=slow[z];
+				else for(i=0;i<3;i++,z++,n++,kbukv--) slowsl[n]=slow[z];
+				slowsl[n++]='-';
+				fl=1;
+				nslow=0;
+				glasn--;
+				pk=1;
+			}
+			if(nslow && x1==3 && x2==3 && x3==1 && x4==2 && x5==3 && x6!=1) //33123
 			{  
 				glasn--;
 				if(glasn>1) // слог даже если после него 1 только если а не в конце слова
 				{
 					for(i=0;i<5;i++,z++,n++,kbukv--) slowsl[n]=slow[z];
-				slowsl[n++]='-';
+				if(x6!=4) slowsl[n++]='-';
+				else
+				{
+					slowsl[n++]=slow[z++];
+					slowsl[n++]='-';
+				}
 				fl=1;
 				nslow=0;
 				glasn--;
@@ -193,20 +219,15 @@ void main()
 		if(nslow==1)
 		{
 		// смотрим начало слова 1321 1331 1221 1231
-		x1=slows[z+0];
-		x2=slows[z+1];
-		x3=slows[z+2];
-		x4=slows[z+3];
 		if(((x1==1 && x2==3 && x3==2 && x4==1) || (x1==1 && x2==3 && x3==3 && x4==1) || 
 		   (x1==1 && x2==2 && x3==2 && x4==1) || (x1==1 && x2==2 && x3==3 && x4==1)))
-		{
-		   for(i=0;i<2;i++,z++,n++,kbukv--)  slowsl[n]=slow[z];
-			fl=1;
-			nslow=0;
-		    glasn--;
-		   // поиск какихто согласных и после мягкий знак?
-		   i=z;
-		   /* while(slows[i]==3 || slows[i]==2) i++;  //скопление согласных с мягким хнаком
+			{
+			 for(i=0;i<2;i++,z++,n++,kbukv--)  slowsl[n]=slow[z];
+				fl=1;
+				nslow=0;
+				glasn--;
+				per=0;
+		   /* i=z; 	fl=0; while(slows[i]==3 || slows[i]==2) i++;  //скопление согласных с мягким хнаком
 		   if(slows[i]==4) 
 		   {
 			   k=i-z+1;
@@ -225,9 +246,25 @@ void main()
 					   if(slows[i]==1) slowsl[n++]='-';
 				}
 			*/
-		}
-		per=0;
-		fl=0;
+			}
+			if(nslow && x1==3 && x2==2 && x3==1)// 321 в начале слова
+			{
+				if(slow[z+3]!='й')
+					for(i=0;i<3;i++,z++,n++,kbukv--)  slowsl[n]=slow[z];
+				else for(i=0;i<4;i++,z++,n++,kbukv--)  slowsl[n]=slow[z];
+				i=z;
+				while(slows[i]!=4 && slows[i]!=1) i++; // поиск согласных и мягкого знака после них
+				if(slows[i]==4) // скопление согласных завершаеться мягким знаком
+				{
+					k=i-z+1;
+					for(i=0;i<k;i++,z++,n++,kbukv--) slowsl[n]=slow[z];
+				}
+				slowsl[n++]='-';
+				fl=1;
+				nslow=0;
+				glasn--;
+				per=0;
+			}
 		}
 		if(kbukv>6)
 		{
@@ -264,6 +301,33 @@ void main()
 				pk=1;
 				nslow=0;
 				i=z;  
+				while(pk==1 && (slows[i]==2  || slows[i]==3)) i++;   // считаем сколько согласных после этих букв 
+				if(slows[i]<0)                       // после этих букв идут только согласные 
+				{
+					for(k=z;k<i;kbukv--,k++,n++,z++) slowsl[n]=slow[z]; // i указывает на конец слова
+					break;
+				}
+				if(pk==1) pk=0;
+				glasn--;
+				if(glasn>0) slowsl[n++]='-'; // записываем признак разделения слогов
+				fl=1;   // что-то записали
+				nslow=0;
+				if(x5==4 && glasn>0) // если после этого сочетания есть мягкий или твердый знак
+					{
+						slowsl[n-1]=slow[z++];
+						slowsl[n++]='-';
+						nslow=0;
+						kbukv--;
+					}
+			}
+			if(x1==3 && x2==3 && x3==3 && x4==3 && x5==1) //33331
+			{
+				if(nslow==0 && slows[z-1]==1 && slowsl[n-1]!='-') slowsl[n++]='-'; //если перед этой комбинацией 1
+				for(i=0;i<5;i++,n++,z++,kbukv--) slowsl[n]=slow[z];  // запись этих букв в разбиение
+				// n переменная для записи букв в slowsl
+				pk=1;
+				nslow=0;
+				i=z;  
 				while(pk==1 && slows[i]==2  && slows[i]==3) i++;   // считаем сколько согласных после этих букв 
 				if(slows[i]==-1)                       // после этих букв идут только согласные 
 				{
@@ -271,8 +335,8 @@ void main()
 					break;
 				}
 				if(pk==1) pk=0;
-				slowsl[n++]='-'; // записываем признак разделения слогов
 				glasn--;
+				if(glasn>0) slowsl[n++]='-'; // записываем признак разделения слогов
 				fl=1;   // что-то записали
 				nslow=0;
 				if(x5==4 && glasn>0) // если после этого сочетания есть мягкий или твердый знак
@@ -294,7 +358,7 @@ void main()
 			{
 				glasn--;
 				for(i=0;i<3;i++,n++,z++,kbukv--) slowsl[n]=slow[z];
-				slowsl[n++]='-';
+				if(glasn>0) slowsl[n++]='-';
 			}
 			
 			/*
@@ -452,6 +516,7 @@ void main()
 				x2=slows[z+1];
 				x3=slows[z+2];
 				x4=slows[z+3];
+				x5=slows[z+4];
 				if(x1==1 && x2==3 & x3==3) //133
 				{
 					for(i=0;i<3;i++,n++,z++,kbukv--) slowsl[n]=slow[z];
@@ -460,7 +525,7 @@ void main()
 					fl=1;
 					pk=1;
 				}
-				if(x1==3 && x2==1 && x3==3 && x4==3) //3134
+				if(x1==3 && x2==1 && x3==3 && x4==3 && x5!=1) //3133
 				{
 					for(i=0;i<4;i++,n++,z++,kbukv--) slowsl[n]=slow[z];
 					slowsl[n++]='-';
@@ -484,7 +549,7 @@ void main()
 			x4=slows[z+3];
 			if((nslow==0 && ((x1==3 && x2==3 && x3==1) || (x1==2 && x2==2 && x3==1) || 
 					(x1==3 && x2==2 && x3==1) || (x1==2 && x2==3 && x3==1) ||
- 					(x1==2 && x2==1 && x3==2) || (x1==3 && x2==1 && x3==2)))||
+ 					(x1==2 && x2==1 && x3==2) || (x1==3 && x2==1 && x3==2 && x4!=1)))||
 					((x1==3 || x1==2) && x2==1 && x3==2 && x4!=1))   // 331 221 321 231 312
 				{
 					if(slowsl[n-1]!='-' && nslow==0) //если перед этими сочетаниями нет черты
@@ -493,7 +558,15 @@ void main()
 					}
 					f=0;
 					for(i=0;i<3;i++,n++,z++,kbukv--) slowsl[n]=slow[z];
-					pk=1;
+					i=z;
+					/* while(slows[i]!=4 && slows[i]!=1) i++; // поиск согласных и мягкого знака после них
+					if(slows[i]==4) // скопление согласных завершаеться мягким знаком
+					{
+						k=i-z+1;
+						for(i=0;i<k;i++,z++,n++,kbukv--) slowsl[n]=slow[z];
+					}
+					*/
+					pk=1; // 
 					i=z;
 					k=i;
 					nslow=0;  // теперь точно не начало слова
@@ -515,7 +588,7 @@ void main()
 						slowsl[n++]='-';
 							while(slows[z]>-1)
 								slowsl[n++]=slow[z++];
-						f=1; 
+						f=1;   // если заходили сюда
 						pk=1;
 					}
 					i=z;
@@ -528,52 +601,82 @@ void main()
 					}
 					if(pk==1) pk=0;
 					glasn--;
-					if(f!=1 && glasn>0 ){ slowsl[n++]='-'; f==0; } // ставим - если не скопление
-					fl=1;
-					if(x4==4 && glasn>0) // если после этого сочетания есть мягкий или твердый знак
+					if(slow[z]=='т' && slow[z+1]=='ь' && slow[z+2]=='с' && slow[z+3]=='я')  //после этого сочетания ться
 					{
-						i=z+2;  // z==x3
-						while(slows[i]>-1 && slows[i]!=4 && (slows[i]==2 || slows[i]==3)) i++;
-						if(slows[i]==4)
-						{
-							slowsl[n-1]=slow[z++];
-							for(k=z;k<i+1;k++,z++,kbukv--,n++) slowsl[n]=slow[z];
-							slowsl[n++]='-';
-							pk=1;
-						}
-						else
-						{
-						slowsl[n-1]=slow[z++];
 						slowsl[n++]='-';
-						pk=1;
-						}
+						for(k=0;k<4;k++,n++,z++) slowsl[n]=slow[z];
 					}
-						if(slows[z]==2 && (slows[z+1]==3 || slows[z+1]==2))  //й краткое (2)
-						{
-							if(glasn>0)
+					else
+					{
+						if(f!=1 && glasn>0 )  // туда не заходили
+						{ 
+							if(slows[z]==3 && slows[z+1]==3 && slows[z+2]==3 && slows[z+3]==1)
 							{
-								if(slowsl[n-1]=='-')
-								{
-									slowsl[n-1]=slow[z++];
+								slowsl[n++]='-';
+								for(k=0;k<4;k++,n++,z++) slowsl[n]=slow[z];
+								glasn--;
+								if(glasn>0) slowsl[n++]='-';
+							}
+							else
+							{
+								if((x4==2 || x4==3) && slows[z+1]!=1)
+									{
+									slowsl[n++]=slow[z++];
+									kbukv--;
 									slowsl[n++]='-';
-								}
+									}
 								else
 								{
-									slowsl[n++]=slow[z++];
-									slowsl[n++]='-';
-								}
-							}
-							else 
-							{
-								while(slow[z]!='\0') slowsl[n++]=slow[z++];
-
+								slowsl[n++]='-';
+								f=0;
+								} 
 							}
 						}
+						fl=1;
+						if(x4==4 && glasn>0) // если после этого сочетания есть мягкий или твердый знак
+						{
+							i=z+2;  // z==x3
+							while(slows[i]>-1 && slows[i]!=4 && (slows[i]==2 || slows[i]==3)) i++;
+							if(slows[i]==4)
+							{
+								slowsl[n-1]=slow[z++];
+								for(k=z;k<i+1;k++,z++,kbukv--,n++) slowsl[n]=slow[z];
+								slowsl[n++]='-';
+								pk=1;
+							}
+							else
+							{
+							slowsl[n-1]=slow[z++];
+							slowsl[n++]='-';
+							pk=1;
+							}
+						}
+					}
+					if(slow[z]=='й' && (slows[z+1]==3 || slows[z+1]==2))  //й краткое (2)
+					{
+						if(glasn>0)
+						{
+							if(slowsl[n-1]=='-')
+							{
+								slowsl[n-1]=slow[z++];
+								slowsl[n++]='-';
+							}
+							else
+							{
+								slowsl[n++]=slow[z++];
+								slowsl[n++]='-';
+							}
+						}
+						else 
+						{
+							while(slow[z]!='\0') slowsl[n++]=slow[z++];
+
+						}
+					}
 				}
-			
 		}
 		k=z; f=0;
-		while(slows[k]>-1 && slows[k]==3) {f++; k++; } // СКОПЛЕНИЕ СОГЛАСНЫХ 3 И БОЛЕЕ
+		while(nslow==0 && slows[k]>-1 && slows[k]==3) {f++; k++; } // СКОПЛЕНИЕ ГЛАСНЫХ 3 И БОЛЕЕ
 		if(f>2) //если 2 подряд
 			if(slows[k]==2) //следующая после них 2?
 			{
@@ -640,6 +743,7 @@ void main()
 
 				if(slow[i-1]=='т' && slow[i+1]=='с' && slow[i+2]=='я'&& (i==z+1))                // ТЬСЯ
 						{
+								if(slows[i-2]==1 && slowsl[n-1]!='-') slowsl[n++]='-';
 								for(k=i-1;k<i+3;k++,n++,kbukv--) slowsl[n]=slow[k]; // позиция буквы и ее номер в схеме равны
 								slowsl[n++]='-';
 								glasn--;
@@ -679,7 +783,7 @@ void main()
 		glasn--;
 		} 
 		*/
-		x1=slows[z]; x2=slows[z+1]; x3=slows[z+2];
+		x1=slows[z]; x2=slows[z+1]; x3=slows[z+2]; x4=slows[z+3]; x5=slows[z+4];
 		if(fl==0) // была ли где-то запись?  fl=0 небыло
 				{
 					k=z; i=z+1;
@@ -691,16 +795,49 @@ void main()
 					}
 					else
 					{
-						if(x1==1 && (x2==1 || x2==3))  //1-3 1-1
+						if(x1==1 && (x2==1 || x2==3))  //1-3 1-1 113-
 						{
-							slowsl[n++]=slow[z++];
-							slowsl[n++]='-';
-							//slowsl[n++]=slow[z++]; // необходимо
-							fl=1;
-							nslow=0;
-						    glasn--;
+							if(nslow==0 && slows[z-1]==1 && x2==3 && x3!=1) // смотрит если предыдущая 1
+								{
+									i=z;// и не конец слова
+									while(slows[i]!=1 && slows[i]>0) i++;
+									if(slows[i]==1)  // значит не конец слова
+									{
+										for(i=0;i<2;i++,n++,z++,kbukv--) slowsl[n]=slow[z];
+										if(slows[z]!=4) slowsl[n++]='-'; // если после этого сочетания не мягкий знак
+										else
+										{
+											slowsl[n++]=slow[z++];
+											slowsl[n++]='-';
+											kbukv--;
+										}
+										glasn--;
+									}
+									else   // конец слова
+									{
+										while(slow[z]!='\0') slowsl[n++]=slow[z++];
+										break;
+									}
+								}
+							else {
+								slowsl[n++]=slow[z++];
+								slowsl[n++]='-';
+								//slowsl[n++]=slow[z++]; // необходимо
+								fl=1;
+								nslow=0;
+								glasn--;
+								}
+							if(x2==1 && x5==1 && ((x3==3 && x4==3) ||   //11331 11231 11321 11221
+								(x3==2 && x4==3) || (x3==3 && x4==2) ||
+								(x3==2 && x4==2)))
+							{
+								slowsl[n++]=slow[z++];
+								slowsl[n++]=slow[z++];
+								slowsl[n++]='-';
+							}
+
 						} 
-						if((x1==3 && x2==3 && nslow==0) || (x1==1 && x2==2))  //1-2
+						if((x1==3 && x2==3 && nslow==0) || (x1==1 && x2==2))  //1-2 3-3 не начало слова
 						{
 							slowsl[n++]=slow[z++];
 							// 
@@ -723,16 +860,24 @@ void main()
 		}
 		if(fl==0)
 			{
+				if(slows[z+1]==1)
 				if(slows[z]==1){ nslow=0; glasn--; }
 				slowsl[n++]=slow[z++];
+				if(slows[z]==1 && slows[z-1]==4 && nslow==0) slowsl[n++]='-';
 			}
 		fl=0;
 	} // конец цикла выделения слогов
+	if(slowsl[n-1]=='-')
+		{
+			slowsl[n-1] = '\n';
+			slowsl[n]='\0';
+		}
+	else
+		{
+			slowsl[n]='\n';
+			slowsl[n+1]='\0';
+		}
 	i=0;
-	while(slowsl[i]!='\0') i++;
-	if(slowsl[i-1]=='-'){ slowsl[i-1]='\n'; slowsl[i]='\0';} 
-	else { slowsl[i]='\n'; slowsl[i+1]='\0'; }
-
 	fputs(slowsl,fp2);
 	fprintf(stdout,"%s",slowsl);
 	i=0;
@@ -744,11 +889,11 @@ void main()
 		slow[i]='\0';
 		i++;
 	}
-	} 
+}    // если больше одной гласной
 		else      // если одна гласная в слове записываем его в выходную переменную
 		{
-			fputs(slow,fp2);
-			puts(slow);
+			fprintf(stdout,"%s",slow);
+			fprintf(fp2,"%s",slow);
 		}
 }  // цикл счтывания слов
 fclose(fp2);
